@@ -31,8 +31,7 @@
             padding-bottom: 5px;
         }
         
-        /* Updated layout box container */
-        .input-box { 
+        form { 
             display: flex; 
             flex-direction: column;
             gap: 10px; 
@@ -128,11 +127,11 @@
 
     <h1>📚 My TBR Tracker</h1>
     
-    <!-- FIXED: Removed <form> wrapper completely to stop Chrome refresh bugs -->
-    <div class="input-box">
-        <input type="text" id="bookInput" placeholder="Book title...">
-        <input type="text" id="authorInput" placeholder="Author...">
-        <select id="genreInput">
+    <!-- Restored form wrapper with explicit script handles -->
+    <form id="bookForm">
+        <input type="text" id="bookInput" placeholder="Book title..." required>
+        <input type="text" id="authorInput" placeholder="Author..." required>
+        <select id="genreInput" required>
             <option value="Fantasy">Fantasy</option>
             <option value="Romance">Romance</option>
             <option value="Thriller">Thriller</option>
@@ -140,15 +139,14 @@
             <option value="Mystery">Mystery</option>
             <option value="Other">Other</option>
         </select>
-        <!-- Button now calls the action cleanly on click -->
-        <button type="button" onclick="handleAddBook()">Add</button>
-    </div>
+        <button type="submit" id="addBtn">Add</button>
+    </form>
 
     <p id="counter" style="text-align: center; font-weight: bold; color: #ebdcf7; margin-bottom: 20px;"></p>
 
     <div class="filter-section">
         <label for="genreFilter">Filter Shelf By:</label>
-        <select id="genreFilter" onchange="showBooks()">
+        <select id="genreFilter">
             <option value="All">All Books</option>
             <option value="Fantasy">Fantasy</option>
             <option value="Romance">Romance</option>
@@ -169,6 +167,7 @@
     <ul id="completedList"></ul>
 
     <script>
+        const form = document.getElementById('bookForm');
         const input = document.getElementById('bookInput');
         const authorInput = document.getElementById('authorInput');
         const genreInput = document.getElementById('genreInput'); 
@@ -180,21 +179,21 @@
 
         let books = [];
 
-        // Safe storage fetch
+        // Safe data initialization shield
         try {
             const saved = localStorage.getItem('myBooks');
             if (saved) {
                 books = JSON.parse(saved);
             }
         } catch (e) {
-            console.log("Storage read blocked, operating in memory.");
+            console.log("Storage restricted, using internal engine.");
         }
 
         function saveBooksSecurely() {
             try {
                 localStorage.setItem('myBooks', JSON.stringify(books));
             } catch (e) {
-                console.log("Storage write blocked.");
+                console.log("Storage write disabled.");
             }
         }
 
@@ -227,10 +226,10 @@
 
                 li.innerHTML = `
                     <div class="book-content ${completedClass}">
-                        <button style="padding: 4px 8px; background: #8a4fff; color: white; border: none; border-radius: 4px; font-family: 'Almendra'; font-size: 11px; cursor: pointer;" onclick="advanceStatus(${index})">${statusLabel}</button>
+                        <button type="button" class="status-btn" data-id="${index}" style="padding: 4px 8px; background: #8a4fff; color: white; border: none; border-radius: 4px; font-family: 'Almendra'; font-size: 11px; cursor: pointer;">${statusLabel}</button>
                         <span><strong>${book.title}</strong> by ${book.author} <span class="genre-tag">${bookGenre}</span></span>
                     </div>
-                    <button class="delete" onclick="removeBook(${index})">X</button>
+                    <button type="button" class="delete-btn" data-id="${index}" style="background: #ff3333; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-family: 'Almendra', serif;">X</button>
                 `;
 
                 if (book.status === 1) {
@@ -260,32 +259,28 @@
             }
         }
 
-        // FIXED: Replaced default submit listener with a direct clean function
-        window.handleAddBook = function() {
+        // Modern Event Listeners to anchor script parameters securely inside Chrome
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
             const newTitle = input.value.trim();
             const newAuthor = authorInput.value.trim();
             const newGenre = genreInput.value;
 
-            // Basic user alert if they leave fields empty
-            if (!newTitle || !newAuthor) {
-                alert("Please fill out both the Title and Author fields!");
-                return;
-            }
-
-            let isDuplicate = false;
-            for(let i=0; i<books.length; i++) {
-                if(books[i].title && books[i].title.toLowerCase() === newTitle.toLowerCase()) {
-                    isDuplicate = true;
+            if (newTitle && newAuthor) {
+                let isDuplicate = false;
+                for(let i=0; i<books.length; i++) {
+                    if(books[i].title && books[i].title.toLowerCase() === newTitle.toLowerCase()) {
+                        isDuplicate = true;
+                    }
                 }
-            }
 
-            if (isDuplicate) {
-                alert(`"${newTitle}" is already on your reading list!`);
-                return; 
-            }
+                if (isDuplicate) {
+                    alert(`"${newTitle}" is already on your reading list!`);
+                    return; 
+                }
 
-            books.push({
-                title: newTitle,
-                author: newAuthor,
-                genre: newGenre, 
+                books.push({
+                    title: newTitle,
+                    author: newAuthor,
 
