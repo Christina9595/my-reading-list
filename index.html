@@ -121,13 +121,25 @@
         .filter-section select {
             width: 60%;
         }
+
+        /* Backup panel styles */
+        .backup-panel {
+            background: rgba(235, 220, 247, 0.1);
+            border: 1px dashed #8a4fff;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 40px;
+            text-align: center;
+            color: #ebdcf7;
+        }
+        .backup-panel p { margin: 0 0 10px 0; font-size: 14px; }
+        .backup-btn { background-color: #4a3b5c !important; font-size: 12px; padding: 6px 12px; margin: 5px; }
     </style>
 </head>
 <body>
 
     <h1>📚 My TBR Tracker</h1>
     
-    <!-- Restored form wrapper with explicit script handles -->
     <form id="bookForm">
         <input type="text" id="bookInput" placeholder="Book title..." required>
         <input type="text" id="authorInput" placeholder="Author..." required>
@@ -166,6 +178,14 @@
     <h2>📜 Completed Chronicles</h2>
     <ul id="completedList"></ul>
 
+    <!-- Secure Backup Control Panel -->
+    <div class="backup-panel">
+        <p>💾 Backup & Restore Scroll Data</p>
+        <button type="button" class="backup-btn" id="exportBtn">Download Scroll</button>
+        <button type="button" class="backup-btn" id="importBtn">Upload Scroll</button>
+        <input type="file" id="fileLoader" style="display: none;" accept=".txt">
+    </div>
+
     <script>
         const form = document.getElementById('bookForm');
         const input = document.getElementById('bookInput');
@@ -176,26 +196,13 @@
         const readingList = document.getElementById('readingList'); 
         const completedList = document.getElementById('completedList');
         const counter = document.getElementById('counter');
+        
+        const exportBtn = document.getElementById('exportBtn');
+        const importBtn = document.getElementById('importBtn');
+        const fileLoader = document.getElementById('fileLoader');
 
+        // ZERO STORAGE DRIVE DEPENDENCY: Bypasses Chrome security loops entirely
         let books = [];
-
-        // Safe data initialization shield
-        try {
-            const saved = localStorage.getItem('myBooks');
-            if (saved) {
-                books = JSON.parse(saved);
-            }
-        } catch (e) {
-            console.log("Storage restricted, using internal engine.");
-        }
-
-        function saveBooksSecurely() {
-            try {
-                localStorage.setItem('myBooks', JSON.stringify(books));
-            } catch (e) {
-                console.log("Storage write disabled.");
-            }
-        }
 
         function showBooks() {
             list.innerHTML = '';
@@ -259,7 +266,6 @@
             }
         }
 
-        // Modern Event Listeners to anchor script parameters securely inside Chrome
         form.addEventListener('submit', (e) => {
             e.preventDefault();
             
@@ -270,17 +276,4 @@
             if (newTitle && newAuthor) {
                 let isDuplicate = false;
                 for(let i=0; i<books.length; i++) {
-                    if(books[i].title && books[i].title.toLowerCase() === newTitle.toLowerCase()) {
-                        isDuplicate = true;
-                    }
-                }
-
-                if (isDuplicate) {
-                    alert(`"${newTitle}" is already on your reading list!`);
-                    return; 
-                }
-
-                books.push({
-                    title: newTitle,
-                    author: newAuthor,
 
