@@ -31,7 +31,8 @@
             padding-bottom: 5px;
         }
         
-        form { 
+        /* Updated layout box container */
+        .input-box { 
             display: flex; 
             flex-direction: column;
             gap: 10px; 
@@ -127,9 +128,10 @@
 
     <h1>📚 My TBR Tracker</h1>
     
-    <form id="bookForm">
-        <input type="text" id="bookInput" placeholder="Book title..." required>
-        <input type="text" id="authorInput" placeholder="Author..." required>
+    <!-- FIXED: Removed <form> wrapper completely to stop Chrome refresh bugs -->
+    <div class="input-box">
+        <input type="text" id="bookInput" placeholder="Book title...">
+        <input type="text" id="authorInput" placeholder="Author...">
         <select id="genreInput">
             <option value="Fantasy">Fantasy</option>
             <option value="Romance">Romance</option>
@@ -138,8 +140,9 @@
             <option value="Mystery">Mystery</option>
             <option value="Other">Other</option>
         </select>
-        <button type="submit">Add</button>
-    </form>
+        <!-- Button now calls the action cleanly on click -->
+        <button type="button" onclick="handleAddBook()">Add</button>
+    </div>
 
     <p id="counter" style="text-align: center; font-weight: bold; color: #ebdcf7; margin-bottom: 20px;"></p>
 
@@ -166,7 +169,6 @@
     <ul id="completedList"></ul>
 
     <script>
-        const form = document.getElementById('bookForm');
         const input = document.getElementById('bookInput');
         const authorInput = document.getElementById('authorInput');
         const genreInput = document.getElementById('genreInput'); 
@@ -178,21 +180,21 @@
 
         let books = [];
 
-        // FIXED: The "Try/Catch" protective shield prevents Chrome from crashing
+        // Safe storage fetch
         try {
             const saved = localStorage.getItem('myBooks');
             if (saved) {
                 books = JSON.parse(saved);
             }
         } catch (e) {
-            console.log("Storage is restricted by Chrome settings, running in-memory mode.");
+            console.log("Storage read blocked, operating in memory.");
         }
 
         function saveBooksSecurely() {
             try {
                 localStorage.setItem('myBooks', JSON.stringify(books));
             } catch (e) {
-                // If Chrome blocks saving, do nothing so the app doesn't lock up
+                console.log("Storage write blocked.");
             }
         }
 
@@ -258,35 +260,32 @@
             }
         }
 
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            
+        // FIXED: Replaced default submit listener with a direct clean function
+        window.handleAddBook = function() {
             const newTitle = input.value.trim();
             const newAuthor = authorInput.value.trim();
             const newGenre = genreInput.value;
 
-            if (newTitle && newAuthor) {
-                let isDuplicate = false;
-                for(let i=0; i<books.length; i++) {
-                    if(books[i].title && books[i].title.toLowerCase() === newTitle.toLowerCase()) {
-                        isDuplicate = true;
-                    }
-                }
+            // Basic user alert if they leave fields empty
+            if (!newTitle || !newAuthor) {
+                alert("Please fill out both the Title and Author fields!");
+                return;
+            }
 
-                if (isDuplicate) {
-                    alert(`"${newTitle}" is already on your reading list!`);
-                    return; 
+            let isDuplicate = false;
+            for(let i=0; i<books.length; i++) {
+                if(books[i].title && books[i].title.toLowerCase() === newTitle.toLowerCase()) {
+                    isDuplicate = true;
                 }
+            }
 
-                books.push({
-                    title: newTitle,
-                    author: newAuthor,
-                    genre: newGenre, 
-                    status: 0 
-                });
-                
-                saveBooksSecurely();
-                showBooks();
-                
-                input.value = '';
+            if (isDuplicate) {
+                alert(`"${newTitle}" is already on your reading list!`);
+                return; 
+            }
+
+            books.push({
+                title: newTitle,
+                author: newAuthor,
+                genre: newGenre, 
 
