@@ -176,8 +176,25 @@
         const completedList = document.getElementById('completedList');
         const counter = document.getElementById('counter');
 
-        // Bypassing restricted localStorage blocks using cloud-friendly sessionStorage
-        let books = JSON.parse(sessionStorage.getItem('myBooks')) || [];
+        let books = [];
+
+        // FIXED: The "Try/Catch" protective shield prevents Chrome from crashing
+        try {
+            const saved = localStorage.getItem('myBooks');
+            if (saved) {
+                books = JSON.parse(saved);
+            }
+        } catch (e) {
+            console.log("Storage is restricted by Chrome settings, running in-memory mode.");
+        }
+
+        function saveBooksSecurely() {
+            try {
+                localStorage.setItem('myBooks', JSON.stringify(books));
+            } catch (e) {
+                // If Chrome blocks saving, do nothing so the app doesn't lock up
+            }
+        }
 
         function showBooks() {
             list.innerHTML = '';
@@ -268,21 +285,8 @@
                     status: 0 
                 });
                 
-                sessionStorage.setItem('myBooks', JSON.stringify(books));
+                saveBooksSecurely();
                 showBooks();
                 
                 input.value = '';
-                authorInput.value = '';
-            }
-        });
-
-        window.advanceStatus = function(index) {
-            let bookStatus = books[index].status || 0;
-            books[index].status = (bookStatus + 1) % 3;
-            sessionStorage.setItem('myBooks', JSON.stringify(books));
-            showBooks();
-        };
-
-        window.removeBook = function(index) {
-            books.splice(index, 1);
 
