@@ -176,8 +176,8 @@
         const completedList = document.getElementById('completedList');
         const counter = document.getElementById('counter');
 
-        // Web storage restored
-        let books = JSON.parse(localStorage.getItem('myBooks')) || [];
+        // Bypassing restricted localStorage blocks using cloud-friendly sessionStorage
+        let books = JSON.parse(sessionStorage.getItem('myBooks')) || [];
 
         function showBooks() {
             list.innerHTML = '';
@@ -268,7 +268,7 @@
                     status: 0 
                 });
                 
-                localStorage.setItem('myBooks', JSON.stringify(books));
+                sessionStorage.setItem('myBooks', JSON.stringify(books));
                 showBooks();
                 
                 input.value = '';
@@ -279,15 +279,10 @@
         window.advanceStatus = function(index) {
             let bookStatus = books[index].status || 0;
             books[index].status = (bookStatus + 1) % 3;
-            localStorage.setItem('myBooks', JSON.stringify(books));
+            sessionStorage.setItem('myBooks', JSON.stringify(books));
             showBooks();
         };
 
         window.removeBook = function(index) {
             books.splice(index, 1);
-            localStorage.setItem('myBooks', JSON.stringify(books));
-            showBooks();
-        };
-
-        showBooks();
 
