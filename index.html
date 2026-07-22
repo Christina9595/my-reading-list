@@ -4,20 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Reading List</title>
-    <!-- Fantasy font link -->
-    <link href="https://googleapis.com" rel="stylesheet">
     
     <style>
+        /* Using standard, built-in fonts temporarily to completely clear the Chrome block */
         body { 
-            font-family: 'Almendra', serif; 
+            font-family: 'Georgia', serif; 
             max-width: 400px; 
             margin: 50px auto; 
             padding: 20px; 
-            background-color: #2d1f3d !important; /* Deep dark purple background */
+            background-color: #2d1f3d !important; /* Your deep dark purple background */
+            color: white;
         }
         
         h1 { 
-            color: white; 
             text-align: center; 
             margin-bottom: 5px;
         }
@@ -31,31 +30,32 @@
             padding-bottom: 5px;
         }
         
-        form { 
-            display: flex; 
+        /* Safe input layout panel */
+        .input-panel {
+            display: flex;
             flex-direction: column;
-            gap: 10px; 
-            margin-bottom: 20px; 
+            gap: 10px;
+            margin-bottom: 20px;
         }
         
         input, select { 
             padding: 10px; 
             border: 1px solid #bba3d0; 
             border-radius: 4px; 
-            font-family: 'Almendra', serif;
+            font-family: inherit;
             background-color: #ebdcf7; 
             color: black;
         }
         
-        button { 
+        .add-btn { 
             padding: 10px 15px; 
             background-color: #8a4fff !important; 
             color: white; 
             border: none; 
             border-radius: 4px; 
             cursor: pointer; 
-            font-family: 'Almendra', serif;
             font-weight: bold;
+            font-family: inherit;
         }
         
         ul { 
@@ -66,6 +66,7 @@
         
         li { 
             background: #ebdcf7; 
+            color: black;
             padding: 12px; 
             margin-bottom: 8px; 
             border-radius: 4px; 
@@ -75,30 +76,29 @@
             box-shadow: 0 2px 4px rgba(138, 79, 255, 0.15); 
         }
         
-        .delete { 
+        .delete-btn { 
             background: #ff3333; 
             color: white; 
             border: none; 
             padding: 5px 10px; 
             border-radius: 3px; 
             cursor: pointer; 
-            font-family: 'Almendra', serif;
         }
 
-        .reading-now {
-            border-left: 5px solid #8a4fff; 
+        .status-btn {
+            padding: 4px 8px; 
+            background: #8a4fff; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            font-size: 11px; 
+            cursor: pointer;
+            margin-right: 5px;
         }
 
-        .completed {
-            text-decoration: line-through;
-            opacity: 0.6;
-        }
-
-        .book-content {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .reading-now { border-left: 5px solid #8a4fff; }
+        .completed { text-decoration: line-through; opacity: 0.6; }
+        .book-content { display: flex; align-items: center; gap: 5px; }
 
         .genre-tag {
             background-color: #8a4fff;
@@ -107,7 +107,6 @@
             padding: 2px 6px;
             border-radius: 10px;
             margin-left: 5px;
-            display: inline-block;
         }
 
         .filter-section {
@@ -118,32 +117,18 @@
             color: #ebdcf7;
             font-weight: bold;
         }
-        .filter-section select {
-            width: 60%;
-        }
-
-        /* Backup panel styles */
-        .backup-panel {
-            background: rgba(235, 220, 247, 0.1);
-            border: 1px dashed #8a4fff;
-            padding: 15px;
-            border-radius: 6px;
-            margin-top: 40px;
-            text-align: center;
-            color: #ebdcf7;
-        }
-        .backup-panel p { margin: 0 0 10px 0; font-size: 14px; }
-        .backup-btn { background-color: #4a3b5c !important; font-size: 12px; padding: 6px 12px; margin: 5px; }
+        .filter-section select { width: 60%; }
     </style>
 </head>
 <body>
 
-    <h1>📚 My TBR Tracker</h1>
+    <h1> My TBR Tracker</h1>
     
-    <form id="bookForm">
-        <input type="text" id="bookInput" placeholder="Book title..." required>
-        <input type="text" id="authorInput" placeholder="Author..." required>
-        <select id="genreInput" required>
+    <!-- Using a basic layout block instead of a form wrapper to stop Chrome refresh freezing -->
+    <div class="input-panel">
+        <input type="text" id="bookInput" placeholder="Book title...">
+        <input type="text" id="authorInput" placeholder="Author...">
+        <select id="genreInput">
             <option value="Fantasy">Fantasy</option>
             <option value="Romance">Romance</option>
             <option value="Thriller">Thriller</option>
@@ -151,14 +136,14 @@
             <option value="Mystery">Mystery</option>
             <option value="Other">Other</option>
         </select>
-        <button type="submit" id="addBtn">Add</button>
-    </form>
+        <button type="button" class="add-btn" id="addBtn">Add Book</button>
+    </div>
 
     <p id="counter" style="text-align: center; font-weight: bold; color: #ebdcf7; margin-bottom: 20px;"></p>
 
     <div class="filter-section">
         <label for="genreFilter">Filter Shelf By:</label>
-        <select id="genreFilter">
+        <select id="genreFilter" id="genreFilterMenu">
             <option value="All">All Books</option>
             <option value="Fantasy">Fantasy</option>
             <option value="Romance">Romance</option>
@@ -178,16 +163,10 @@
     <h2>📜 Completed Chronicles</h2>
     <ul id="completedList"></ul>
 
-    <!-- Secure Backup Control Panel -->
-    <div class="backup-panel">
-        <p>💾 Backup & Restore Scroll Data</p>
-        <button type="button" class="backup-btn" id="exportBtn">Download Scroll</button>
-        <button type="button" class="backup-btn" id="importBtn">Upload Scroll</button>
-        <input type="file" id="fileLoader" style="display: none;" accept=".txt">
-    </div>
-
     <script>
-        const form = document.getElementById('bookForm');
+        // Internal variables only—no storage commands for security filters to block
+        let books = [];
+
         const input = document.getElementById('bookInput');
         const authorInput = document.getElementById('authorInput');
         const genreInput = document.getElementById('genreInput'); 
@@ -196,13 +175,7 @@
         const readingList = document.getElementById('readingList'); 
         const completedList = document.getElementById('completedList');
         const counter = document.getElementById('counter');
-        
-        const exportBtn = document.getElementById('exportBtn');
-        const importBtn = document.getElementById('importBtn');
-        const fileLoader = document.getElementById('fileLoader');
-
-        // ZERO STORAGE DRIVE DEPENDENCY: Bypasses Chrome security loops entirely
-        let books = [];
+        const addBtn = document.getElementById('addBtn');
 
         function showBooks() {
             list.innerHTML = '';
@@ -214,10 +187,7 @@
 
             books.forEach((book, index) => {
                 const bookGenre = book.genre || 'Other';
-
-                if (currentFilter !== 'All' && bookGenre !== currentFilter) {
-                    return; 
-                }
+                if (currentFilter !== 'All' && bookGenre !== currentFilter) return; 
 
                 const li = document.createElement('li');
                 let completedClass = '';
@@ -233,10 +203,10 @@
 
                 li.innerHTML = `
                     <div class="book-content ${completedClass}">
-                        <button type="button" class="status-btn" data-id="${index}" style="padding: 4px 8px; background: #8a4fff; color: white; border: none; border-radius: 4px; font-family: 'Almendra'; font-size: 11px; cursor: pointer;">${statusLabel}</button>
+                        <button type="button" class="status-btn" onclick="advanceStatus(${index})">${statusLabel}</button>
                         <span><strong>${book.title}</strong> by ${book.author} <span class="genre-tag">${bookGenre}</span></span>
                     </div>
-                    <button type="button" class="delete-btn" data-id="${index}" style="background: #ff3333; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-family: 'Almendra', serif;">X</button>
+                    <button type="button" class="delete-btn" onclick="removeBook(${index})">X</button>
                 `;
 
                 if (book.status === 1) {
@@ -266,14 +236,58 @@
             }
         }
 
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            
+        // Direct clickable action handler
+        addBtn.onclick = function() {
             const newTitle = input.value.trim();
             const newAuthor = authorInput.value.trim();
             const newGenre = genreInput.value;
 
-            if (newTitle && newAuthor) {
-                let isDuplicate = false;
-                for(let i=0; i<books.length; i++) {
+            if (!newTitle || !newAuthor) {
+                alert("Please fill out both the Title and Author fields!");
+                return;
+            }
+
+            let isDuplicate = false;
+            for(let i=0; i<books.length; i++) {
+                if(books[i].title && books[i].title.toLowerCase() === newTitle.toLowerCase()) {
+                    isDuplicate = true;
+                }
+            }
+
+            if (isDuplicate) {
+                alert(`"${newTitle}" is already on your reading list!`);
+                return; 
+            }
+
+            books.push({
+                title: newTitle,
+                author: newAuthor,
+                genre: newGenre, 
+                status: 0 
+            });
+            
+            showBooks();
+            input.value = '';
+            authorInput.value = '';
+        };
+
+        window.advanceStatus = function(index) {
+            let bookStatus = books[index].status || 0;
+            books[index].status = (bookStatus + 1) % 3;
+            showBooks();
+        };
+
+        window.removeBook = function(index) {
+            books.splice(index, 1);
+            showBooks();
+        };
+
+        genreFilter.onchange = showBooks;
+
+        showBooks();
+    </script>
+
+</body>
+</html>
+
 
