@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+       <!-- Links your site to your custom phone app configuration settings -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2d1f3d">
+    
+    <script>
+        // Tells the browser to activate the offline engine background script
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Reading List</title>
